@@ -20,5 +20,5 @@ func NewUserHandler(service userService.IUserService) IUserHandler {
 }
 
 func (h *UserHandler) Login(c echo.Context) error {
-	return c.JSON(http.StatusOK, "Login page")
+	return c.JSON(http.StatusOK, "Login page2")
 }
