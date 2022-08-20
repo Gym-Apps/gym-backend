@@ -20,7 +20,7 @@ const (
 )
 
 type User struct {
-	Base
+	gorm.Model
 	Name        string      `json:"name"`
 	Surname     string      `json:"surname"`
 	Phone       string      `json:"phone"`

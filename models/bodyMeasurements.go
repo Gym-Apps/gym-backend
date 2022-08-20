@@ -4,18 +4,20 @@ package models
 import "gorm.io/gorm"
 
 type BodyMeasurement struct {
+	gorm.Model
 	UserID     uint    `json:"user_id"`
-	Chest      uint16  `json:"chest"`                                        // göğus ölçüsü
-	LeftArm    uint16  `json:"left_arm"`                                     // sol kol
-	RigthArm   uint16  `json:"rigth_arm"`                                    // sağ kol
-	Abdomen    uint16  `json:"abdomen"`                                      // karın
-	Waist      uint16  `json:"waist"`                                        // bel
-	Hips       uint16  `json:"hips"`                                         // kalça
-	LeftThigh  uint16  `json:"left_thigh"`                                   // sol üst bacak
-	RigthThigh uint16  `json:"rigth_thigh"`                                  // sağ üst bacak
-	FatRate    uint8   `json:"fat_rate"`                                     // yağ oranı
-	Weight     uint16  `json:"weight"`                                       // kilo
-	Height     float32 `json:"height" gorm:"type:DECIMAL(13,2);default:'0'"` // boy
+	User       User    `gorm:"foreignKey:user_id"`
+	Chest      uint16  `json:"chest"`                                      // göğus ölçüsü
+	LeftArm    uint16  `json:"left_arm"`                                   // sol kol
+	RigthArm   uint16  `json:"rigth_arm"`                                  // sağ kol
+	Abdomen    uint16  `json:"abdomen"`                                    // karın
+	Waist      uint16  `json:"waist"`                                      // bel
+	Hips       uint16  `json:"hips"`                                       // kalça
+	LeftThigh  uint16  `json:"left_thigh"`                                 // sol üst bacak
+	RigthThigh uint16  `json:"rigth_thigh"`                                // sağ üst bacak
+	FatRate    uint8   `json:"fat_rate"`                                   // yağ oranı
+	Weight     uint16  `json:"weight"`                                     // kilo
+	Height     float32 `json:"height" gorm:"type:DECIMAL(13,2);default:0"` // boy
 	BMI        string  `json:"body_mass_index" gorm:"-"`
 }
 
