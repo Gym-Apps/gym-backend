@@ -9,8 +9,8 @@ import (
 var debug = true
 var DB *gorm.DB
 
-func Init() {
-	dsn := "root:mysql123@tcp(127.0.0.1:3306)/gymapp?charset=utf8mb4&parseTime=True&loc=Local"
+func Connect() *gorm.DB {
+	dsn := "root:mysql123@/gymapp?charset=utf8mb4&parseTime=True&loc=Local"
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		panic(err.Error())
@@ -21,6 +21,7 @@ func Init() {
 		Migrate()
 	}
 
+	return db
 }
 
 func Migrate() {

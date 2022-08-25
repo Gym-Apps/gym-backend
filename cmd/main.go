@@ -7,9 +7,9 @@ import (
 )
 
 func main() {
-	db.Init()
+	db := db.Connect()
 
 	e := echo.New()
-	router.Init(e)
+	router.Init(e, db)
 	e.Logger.Fatal(e.Start(":8080"))
 }
