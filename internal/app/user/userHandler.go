@@ -3,7 +3,11 @@ package user
 import (
 	"net/http"
 
+	"github.com/Gym-Apps/gym-backend/dto/request"
 	userService "github.com/Gym-Apps/gym-backend/internal/service/user"
+	"github.com/Gym-Apps/gym-backend/internal/util/response"
+	"github.com/Gym-Apps/gym-backend/internal/util/validate"
+
 	"github.com/labstack/echo/v4"
 )
 
@@ -20,5 +24,14 @@ func NewUserHandler(service userService.IUserService) IUserHandler {
 }
 
 func (h *UserHandler) Login(c echo.Context) error {
-	return c.JSON(http.StatusOK, "Login page2")
+	var request request.UserLoginDTO
+	if validate.Validator(&c, &request) != nil {
+		return nil
+	}
+
+	user, err := h.service.Login(request)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, response.Response(http.StatusBadRequest, "Bir hata oluştu"))
+	}
+	return c.JSON(http.StatusOK, response.Response(http.StatusOK, user))
 }
