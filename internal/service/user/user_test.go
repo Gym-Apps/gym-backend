@@ -26,7 +26,7 @@ func TestLogin(t *testing.T) {
 			Password:   "$2a$04$HnXu0HWPzJlFR6R5g2K81OywH.roBdJn1Ms7jiqua2yx38aI2zNnO",
 		}, nil)
 
-		userService := NewUserService(repoMock)
+		userService := NewUserService(repoMock, nil)
 
 		userLoginResponse, err := userService.Login(userLoginRequest)
 		assert.Equal(t, err, nil)
@@ -44,7 +44,7 @@ func TestLogin(t *testing.T) {
 			Password:   "$2a$04$HnXu0HWPzJlFR6R5g2K81OywH.roBdJn1Ms7jiqua2yx38aI2zNnO",
 		}, errors.New("not found"))
 
-		userService := NewUserService(repoMock)
+		userService := NewUserService(repoMock, nil)
 
 		_, err := userService.Login(userLoginRequest)
 		assert.NotEqual(t, err, nil)
@@ -61,9 +61,111 @@ func TestLogin(t *testing.T) {
 			Password:   "$2a$04$HnXu0HWPzJlFR6R5g2Nn",
 		}, nil)
 
-		userService := NewUserService(repoMock)
+		userService := NewUserService(repoMock, nil)
 
 		_, err := userService.Login(userLoginRequest)
 		assert.NotEqual(t, err, nil)
+	})
+}
+
+func TestResetPassword(t *testing.T) {
+	t.Run("Successful reset password", func(t *testing.T) {
+		user := models.User{
+			Name:     "test",
+			Surname:  "test surname",
+			Password: "$2a$04$HnXu0HWPzJlFR6R5g2K81OywH.roBdJn1Ms7jiqua2yx38aI2zNnO", // 123123 demek
+		}
+		user.ID = 12
+
+		var request request.UserResetPasswordDTO
+		request.OldPassword = "123123"
+		request.NewPassword = "123456"
+
+		utilsMock := mocks.NewIUtils(t)
+		utilsMock.On("EqualPassword", user.Password, request.OldPassword).Return(true)
+		utilsMock.On("EqualPassword", user.Password, request.NewPassword).Return(false)
+		utilsMock.On("GeneratePassword", request.NewPassword).Return("$04$1kp13XtORrd5gI0Buf.3ceUN/Ee94Ok0L.1AMwJBEAHoBZFRNPo7S", nil)
+
+		repoMock := mocks.NewIUserRepository(t)
+		repoMock.On("UpdatePassword", user.ID, "$04$1kp13XtORrd5gI0Buf.3ceUN/Ee94Ok0L.1AMwJBEAHoBZFRNPo7S").Return(nil)
+
+		userService := NewUserService(repoMock, utilsMock)
+		err := userService.ResetPassword(user, request)
+		assert.Equal(t, err, nil)
+	})
+
+	t.Run("Worng old password", func(t *testing.T) {
+		user := models.User{
+			Name:     "test",
+			Surname:  "test surname",
+			Password: "$2a$04$HnXu0HWPzJlFR6R5g2K81OywH.roBdJn1Ms7jiqua2yx38aI2zNnO", // 123123 demek
+		}
+		user.ID = 12
+
+		var request request.UserResetPasswordDTO
+		request.OldPassword = "1231232"
+		request.NewPassword = "123456"
+
+		utilsMock := mocks.NewIUtils(t)
+		utilsMock.On("EqualPassword", user.Password, request.OldPassword).Return(false)
+		//utilsMock.On("EqualPassword", user.Password, request.NewPassword).Return(false)
+		//utilsMock.On("GeneratePassword", request.NewPassword).Return("$04$1kp13XtORrd5gI0Buf.3ceUN/Ee94Ok0L.1AMwJBEAHoBZFRNPo7S", nil)
+
+		repoMock := mocks.NewIUserRepository(t)
+		//repoMock.On("UpdatePassword", user.ID, "$04$1kp13XtORrd5gI0Buf.3ceUN/Ee94Ok0L.1AMwJBEAHoBZFRNPo7S").Return(nil)
+
+		userService := NewUserService(repoMock, utilsMock)
+		err := userService.ResetPassword(user, request)
+		assert.Equal(t, err, errors.New("Eski şifre doğrulanamadı."))
+	})
+
+	t.Run("Equal old password and new password", func(t *testing.T) {
+		user := models.User{
+			Name:     "test",
+			Surname:  "test surname",
+			Password: "$2a$04$HnXu0HWPzJlFR6R5g2K81OywH.roBdJn1Ms7jiqua2yx38aI2zNnO", // 123123 demek
+		}
+		user.ID = 12
+
+		var request request.UserResetPasswordDTO
+		request.OldPassword = "123123"
+		request.NewPassword = "123123"
+
+		utilsMock := mocks.NewIUtils(t)
+		utilsMock.On("EqualPassword", user.Password, request.OldPassword).Return(true)
+		utilsMock.On("EqualPassword", user.Password, request.NewPassword).Return(true)
+		//utilsMock.On("GeneratePassword", request.NewPassword).Return("$04$1kp13XtORrd5gI0Buf.3ceUN/Ee94Ok0L.1AMwJBEAHoBZFRNPo7S", nil)
+
+		repoMock := mocks.NewIUserRepository(t)
+		//repoMock.On("UpdatePassword", user.ID, "$04$1kp13XtORrd5gI0Buf.3ceUN/Ee94Ok0L.1AMwJBEAHoBZFRNPo7S").Return(nil)
+
+		userService := NewUserService(repoMock, utilsMock)
+		err := userService.ResetPassword(user, request)
+		assert.Equal(t, err, errors.New("Eski şifre ile yeni şifre aynı olamaz."))
+	})
+
+	t.Run("Repository error", func(t *testing.T) {
+		user := models.User{
+			Name:     "test",
+			Surname:  "test surname",
+			Password: "$2a$04$HnXu0HWPzJlFR6R5g2K81OywH.roBdJn1Ms7jiqua2yx38aI2zNnO", // 123123 demek
+		}
+		user.ID = 12
+
+		var request request.UserResetPasswordDTO
+		request.OldPassword = "123123"
+		request.NewPassword = "123456"
+
+		utilsMock := mocks.NewIUtils(t)
+		utilsMock.On("EqualPassword", user.Password, request.OldPassword).Return(true)
+		utilsMock.On("EqualPassword", user.Password, request.NewPassword).Return(false)
+		utilsMock.On("GeneratePassword", request.NewPassword).Return("$04$1kp13XtORrd5gI0Buf.3ceUN/Ee94Ok0L.1AMwJBEAHoBZFRNPo7S", nil)
+
+		repoMock := mocks.NewIUserRepository(t)
+		repoMock.On("UpdatePassword", user.ID, "$04$1kp13XtORrd5gI0Buf.3ceUN/Ee94Ok0L.1AMwJBEAHoBZFRNPo7S").Return(errors.New("şifre güncellemede sorun oluştu."))
+
+		userService := NewUserService(repoMock, utilsMock)
+		err := userService.ResetPassword(user, request)
+		assert.Equal(t, err, errors.New("şifre güncellemede sorun oluştu."))
 	})
 }
