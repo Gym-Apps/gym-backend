@@ -1,6 +1,7 @@
 package user
 
 import (
+	"context"
 	"sync"
 
 	"github.com/Gym-Apps/gym-backend/models"
@@ -8,8 +9,9 @@ import (
 )
 
 type IUserRepository interface {
-	Login(phone string) (models.User, error)
-	UpdatePassword(userID uint, password string) error
+	Login(ctx context.Context, phone string) (models.User, error)
+	UpdatePassword(ctx context.Context, userID uint, password string) error
+	//WithContext(ctx context.Context) IUserRepository
 }
 
 type UserRepository struct {
@@ -21,7 +23,12 @@ func NewUserRepository(db *gorm.DB) IUserRepository {
 	return &UserRepository{db: db}
 }
 
-func (u *UserRepository) Login(phone string) (models.User, error) {
+// func (u *UserRepository) WithContext(ctx context.Context) IUserRepository {
+// 	u.db = u.db.WithContext(ctx)
+// 	return u
+// }
+
+func (u *UserRepository) Login(ctx context.Context, phone string) (models.User, error) {
 	u.mu.Lock()
 	var user models.User
 	err := u.db.Where("phone = ?", phone).First(&user).Error
@@ -29,7 +36,7 @@ func (u *UserRepository) Login(phone string) (models.User, error) {
 	return user, err
 }
 
-func (u *UserRepository) UpdatePassword(userID uint, password string) error {
+func (u *UserRepository) UpdatePassword(ctx context.Context, userID uint, password string) error {
 	u.mu.Lock()
 	err := u.db.Model(&models.User{}).Where("id = ?", userID).Update("password", password).Error
 	u.mu.Unlock()

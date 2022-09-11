@@ -35,7 +35,9 @@ func (h *UserHandler) Login(c echo.Context) error {
 		return nil
 	}
 
-	user, err := h.service.Login(request)
+	ctx := c.Request().Context()
+
+	user, err := h.service.Login(ctx, request)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, response.Response(http.StatusBadRequest, "Bir hata oluştu"))
 	}
@@ -49,8 +51,9 @@ func (h *UserHandler) ResetPassword(c echo.Context) error {
 	}
 
 	user := h.utils.GetUser(&c)
+	ctx := c.Request().Context()
 
-	err := h.service.ResetPassword(user, request)
+	err := h.service.ResetPassword(ctx, user, request)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, response.Response(http.StatusBadRequest, err.Error()))
 	}
