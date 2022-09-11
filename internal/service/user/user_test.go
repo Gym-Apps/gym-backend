@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/Gym-Apps/gym-backend/dto/request"
+	"github.com/Gym-Apps/gym-backend/internal/service"
 	"github.com/Gym-Apps/gym-backend/mocks"
 	"github.com/Gym-Apps/gym-backend/models"
 	"github.com/stretchr/testify/assert"
@@ -29,7 +30,7 @@ func TestLogin(t *testing.T) {
 			Password:   "$2a$04$HnXu0HWPzJlFR6R5g2K81OywH.roBdJn1Ms7jiqua2yx38aI2zNnO",
 		}, nil)
 
-		userService := NewUserService(repoMock, nil)
+		userService := NewUserService(repoMock, service.Service{Utils: nil})
 
 		userLoginResponse, err := userService.Login(ctx, userLoginRequest)
 		assert.Equal(t, err, nil)
@@ -48,7 +49,7 @@ func TestLogin(t *testing.T) {
 			Password:   "$2a$04$HnXu0HWPzJlFR6R5g2K81OywH.roBdJn1Ms7jiqua2yx38aI2zNnO",
 		}, errors.New("not found"))
 
-		userService := NewUserService(repoMock, nil)
+		userService := NewUserService(repoMock, service.Service{Utils: nil})
 
 		_, err := userService.Login(ctx, userLoginRequest)
 		assert.NotEqual(t, err, nil)
@@ -67,7 +68,7 @@ func TestLogin(t *testing.T) {
 			Password:   "$2a$04$HnXu0HWPzJlFR6R5g2Nn",
 		}, nil)
 
-		userService := NewUserService(repoMock, nil)
+		userService := NewUserService(repoMock, service.Service{Utils: nil})
 
 		_, err := userService.Login(ctx, userLoginRequest)
 		assert.NotEqual(t, err, nil)
@@ -96,7 +97,7 @@ func TestResetPassword(t *testing.T) {
 		repoMock := mocks.NewIUserRepository(t)
 		repoMock.On("UpdatePassword", mock.Anything, user.ID, "$04$1kp13XtORrd5gI0Buf.3ceUN/Ee94Ok0L.1AMwJBEAHoBZFRNPo7S").Return(nil)
 
-		userService := NewUserService(repoMock, utilsMock)
+		userService := NewUserService(repoMock, service.Service{Utils: utilsMock})
 		err := userService.ResetPassword(ctx, user, request)
 		assert.Equal(t, err, nil)
 	})
@@ -119,7 +120,7 @@ func TestResetPassword(t *testing.T) {
 		ctx := context.Background()
 		repoMock := mocks.NewIUserRepository(t)
 
-		userService := NewUserService(repoMock, utilsMock)
+		userService := NewUserService(repoMock, service.Service{Utils: utilsMock})
 		err := userService.ResetPassword(ctx, user, request)
 		assert.Equal(t, err, errors.New("Eski şifre doğrulanamadı."))
 	})
@@ -143,7 +144,7 @@ func TestResetPassword(t *testing.T) {
 		ctx := context.Background()
 		repoMock := mocks.NewIUserRepository(t)
 
-		userService := NewUserService(repoMock, utilsMock)
+		userService := NewUserService(repoMock, service.Service{Utils: utilsMock})
 		err := userService.ResetPassword(ctx, user, request)
 		assert.Equal(t, err, errors.New("Eski şifre ile yeni şifre aynı olamaz."))
 	})
@@ -169,7 +170,7 @@ func TestResetPassword(t *testing.T) {
 		repoMock := mocks.NewIUserRepository(t)
 		repoMock.On("UpdatePassword", mock.Anything, user.ID, "$04$1kp13XtORrd5gI0Buf.3ceUN/Ee94Ok0L.1AMwJBEAHoBZFRNPo7S").Return(errors.New("şifre güncellemede sorun oluştu."))
 
-		userService := NewUserService(repoMock, utilsMock)
+		userService := NewUserService(repoMock, service.Service{Utils: utilsMock})
 		err := userService.ResetPassword(ctx, user, request)
 		assert.Equal(t, err, errors.New("şifre güncellemede sorun oluştu."))
 	})
