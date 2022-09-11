@@ -7,13 +7,11 @@ import (
 	"gorm.io/gorm"
 )
 
-var Handler IUserHandler
-
-func UserInit(db *gorm.DB) {
+func UserInit(db *gorm.DB) IUserHandler {
 	utils := utils.NewUtils()
 	repository := userRepo.NewUserRepository(db)
 	service := userService.NewUserService(repository, utils)
 	handler := NewUserHandler(service, utils)
 
-	Handler = handler
+	return handler
 }

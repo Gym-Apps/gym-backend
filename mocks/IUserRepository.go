@@ -3,6 +3,8 @@
 package mocks
 
 import (
+	context "context"
+
 	models "github.com/Gym-Apps/gym-backend/models"
 	mock "github.com/stretchr/testify/mock"
 )
@@ -12,20 +14,20 @@ type IUserRepository struct {
 	mock.Mock
 }
 
-// Login provides a mock function with given fields: phone
-func (_m *IUserRepository) Login(phone string) (models.User, error) {
-	ret := _m.Called(phone)
+// Login provides a mock function with given fields: ctx, phone
+func (_m *IUserRepository) Login(ctx context.Context, phone string) (models.User, error) {
+	ret := _m.Called(ctx, phone)
 
 	var r0 models.User
-	if rf, ok := ret.Get(0).(func(string) models.User); ok {
-		r0 = rf(phone)
+	if rf, ok := ret.Get(0).(func(context.Context, string) models.User); ok {
+		r0 = rf(ctx, phone)
 	} else {
 		r0 = ret.Get(0).(models.User)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(string) error); ok {
-		r1 = rf(phone)
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, phone)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -33,13 +35,13 @@ func (_m *IUserRepository) Login(phone string) (models.User, error) {
 	return r0, r1
 }
 
-// UpdatePassword provides a mock function with given fields: userID, password
-func (_m *IUserRepository) UpdatePassword(userID uint, password string) error {
-	ret := _m.Called(userID, password)
+// UpdatePassword provides a mock function with given fields: ctx, userID, password
+func (_m *IUserRepository) UpdatePassword(ctx context.Context, userID uint, password string) error {
+	ret := _m.Called(ctx, userID, password)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(uint, string) error); ok {
-		r0 = rf(userID, password)
+	if rf, ok := ret.Get(0).(func(context.Context, uint, string) error); ok {
+		r0 = rf(ctx, userID, password)
 	} else {
 		r0 = ret.Error(0)
 	}

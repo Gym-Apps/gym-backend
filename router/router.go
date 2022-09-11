@@ -9,13 +9,8 @@ import (
 	"gorm.io/gorm"
 )
 
-func setup(tx *gorm.DB) {
-	user.UserInit(tx)
-}
-
 func Init(router *echo.Echo, tx *gorm.DB) {
-	setup(tx)
-	userHandler := user.Handler
+	userHandler := user.UserInit(tx)
 	router.POST("/login", userHandler.Login)
 
 	auth := router.Group("")
