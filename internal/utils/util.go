@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"time"
+
 	"github.com/Gym-Apps/gym-backend/models"
 	"github.com/labstack/echo/v4"
 	"golang.org/x/crypto/bcrypt"
@@ -33,6 +35,10 @@ func (u *Utils) EqualPassword(old, new string) bool {
 
 func (u *Utils) GeneratePassword(password string) (string, error) {
 	hasPassword, err := bcrypt.GenerateFromPassword([]byte(password), 4)
-
 	return string(hasPassword), err
+}
+
+func  EuToTime(StringDate string) (time.Time, error) {
+	date, err := time.Parse("02.01.2006", StringDate)
+	return date, err
 }

@@ -12,6 +12,34 @@ type IUserRepository struct {
 	mock.Mock
 }
 
+// IsDuplicateEmail provides a mock function with given fields: email
+func (_m *IUserRepository) IsDuplicateEmail(email string) bool {
+	ret := _m.Called(email)
+
+	var r0 bool
+	if rf, ok := ret.Get(0).(func(string) bool); ok {
+		r0 = rf(email)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+
+	return r0
+}
+
+// IsDuplicatePhone provides a mock function with given fields: phone
+func (_m *IUserRepository) IsDuplicatePhone(phone string) bool {
+	ret := _m.Called(phone)
+
+	var r0 bool
+	if rf, ok := ret.Get(0).(func(string) bool); ok {
+		r0 = rf(phone)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+
+	return r0
+}
+
 // Login provides a mock function with given fields: phone
 func (_m *IUserRepository) Login(phone string) (models.User, error) {
 	ret := _m.Called(phone)
@@ -31,6 +59,20 @@ func (_m *IUserRepository) Login(phone string) (models.User, error) {
 	}
 
 	return r0, r1
+}
+
+// Register provides a mock function with given fields: _a0
+func (_m *IUserRepository) Register(_a0 *models.User) error {
+	ret := _m.Called(_a0)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*models.User) error); ok {
+		r0 = rf(_a0)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
 }
 
 // UpdatePassword provides a mock function with given fields: userID, password

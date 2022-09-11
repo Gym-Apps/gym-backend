@@ -14,6 +14,7 @@ import (
 
 type IUserHandler interface {
 	Login(c echo.Context) error
+	Register(c echo.Context) error
 	ResetPassword(c echo.Context) error
 }
 
@@ -40,6 +41,21 @@ func (h *UserHandler) Login(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, response.Response(http.StatusBadRequest, "Bir hata oluştu"))
 	}
 	return c.JSON(http.StatusOK, response.Response(http.StatusOK, user))
+}
+
+func (h *UserHandler) Register(c echo.Context) error {
+	var request request.UserRegisterDTO
+	if validate.Validator(&c, &request) != nil {
+		return nil
+	}
+
+	user, err := h.service.Register(request)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, response.Response(http.StatusBadRequest, err.Error()))
+
+	}
+	return c.JSON(http.StatusOK, response.Response(http.StatusOK, user))
+
 }
 
 func (h *UserHandler) ResetPassword(c echo.Context) error {

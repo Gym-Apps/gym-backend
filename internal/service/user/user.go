@@ -17,6 +17,7 @@ import (
 
 type IUserService interface {
 	Login(userLoginRequest request.UserLoginDTO) (response.UserLoginDTO, error)
+	Register(userRegisterRequest request.UserRegisterDTO) (response.UserRegisterDTO, error)
 	ResetPassword(user models.User, request request.UserResetPasswordDTO) error
 }
 
@@ -79,4 +80,57 @@ func (s *UserService) ResetPassword(user models.User, request request.UserResetP
 	}
 
 	return nil
+}
+func (s *UserService) Register(userRegisterRequest request.UserRegisterDTO) (response.UserRegisterDTO, error) {
+
+	isDuplicateEmail := s.repository.IsDuplicateEmail(userRegisterRequest.Email)
+	if isDuplicateEmail {
+		err := errors.New("Bu e-mail adresi  farklı bir kullanıcı tarafından kullanılmaktadır.")
+		return response.UserRegisterDTO{}, err
+	}
+
+	isDuplicatePhone := s.repository.IsDuplicatePhone(userRegisterRequest.Phone)
+	if isDuplicatePhone {
+		err := errors.New("Bu telefon numarası  farklı bir kullanıcı tarafından kullanılmaktadır.")
+		return response.UserRegisterDTO{}, err
+	}
+
+	hashPassword, err := s.utils.GeneratePassword(userRegisterRequest.Password)
+	if err != nil {
+		err := errors.New("Şifre oluşturulamadı.")
+		return response.UserRegisterDTO{}, err
+	}
+
+	passwordControl := s.utils.EqualPassword(hashPassword, userRegisterRequest.Password)
+	if !passwordControl {
+		return response.UserRegisterDTO{}, errors.New("Şifre doğru bir şekilde oluşturulamadı.")
+	}
+
+	birthday, err := utils.EuToTime(userRegisterRequest.Birthday)
+	if err != nil {
+		return response.UserRegisterDTO{}, errors.New("Tarih dönüştürülürken hata oluştu")
+	}
+
+	newUser := models.User{
+		Name:        userRegisterRequest.Name,
+		Surname:     userRegisterRequest.Surname,
+		Email:       userRegisterRequest.Email,
+		Phone:       userRegisterRequest.Phone,
+		Birthday:    birthday,
+		AccountType: models.AccountType(userRegisterRequest.AccountType),
+		AccountName: "Sporcu",
+		Gender:      models.Gender(userRegisterRequest.Gender),
+		GenderName:  "Erkek",
+		Password:    string(hashPassword),
+	}
+	err = s.repository.Register(&newUser)
+	if err != nil {
+		err = errors.New("Kayıt işlemi başarısız oldu. Lütfen bilgilerinizi kontrol ediniz.")
+		return response.UserRegisterDTO{}, err
+	}
+	var userRegisterResponse response.UserRegisterDTO
+	userRegisterResponse.Convert(newUser)
+
+	return userRegisterResponse, nil
+
 }
