@@ -33,6 +33,20 @@ func (_m *IUserRepository) Login(phone string) (models.User, error) {
 	return r0, r1
 }
 
+// UpdatePassword provides a mock function with given fields: userID, password
+func (_m *IUserRepository) UpdatePassword(userID uint, password string) error {
+	ret := _m.Called(userID, password)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(uint, string) error); ok {
+		r0 = rf(userID, password)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 type mockConstructorTestingTNewIUserRepository interface {
 	mock.TestingT
 	Cleanup(func())

@@ -11,6 +11,7 @@ import (
 	"github.com/Gym-Apps/gym-backend/dto/request"
 	"github.com/Gym-Apps/gym-backend/dto/response"
 	mocks "github.com/Gym-Apps/gym-backend/mocks"
+	"github.com/Gym-Apps/gym-backend/models"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 )
@@ -39,7 +40,7 @@ func TestLogin(t *testing.T) {
 		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
-		handler := NewUserHandler(serviceMock)
+		handler := NewUserHandler(serviceMock, nil)
 
 		// Assertions
 		if assert.NoError(t, handler.Login(c)) {
@@ -59,7 +60,7 @@ func TestLogin(t *testing.T) {
 		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
-		handler := NewUserHandler(serviceMock)
+		handler := NewUserHandler(serviceMock, nil)
 
 		// Assertions
 		if assert.NoError(t, handler.Login(c)) {
@@ -88,10 +89,99 @@ func TestLogin(t *testing.T) {
 		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
-		handler := NewUserHandler(serviceMock)
+		handler := NewUserHandler(serviceMock, nil)
 
 		// Assertions
 		if assert.NoError(t, handler.Login(c)) {
+			assert.Equal(t, http.StatusBadRequest, rec.Code)
+		}
+	})
+}
+
+func TestResetPassword(t *testing.T) {
+
+	t.Run("successful reset password", func(t *testing.T) {
+		user := models.User{
+			Name:     "test",
+			Surname:  "test surname",
+			Password: "$2a$04$HnXu0HWPzJlFR6R5g2K81OywH.roBdJn1Ms7jiqua2yx38aI2zNnO", // 123123 demek
+		}
+		utilsMock := mocks.NewIUtils(t)
+		serviceMock := mocks.NewIUserService(t)
+		var resetPasswordRequest request.UserResetPasswordDTO
+		resetPasswordRequest.OldPassword = "123456"
+		resetPasswordRequest.NewPassword = "123123"
+
+		serviceMock.On("ResetPassword", user, resetPasswordRequest).Return(nil)
+
+		resetPasswordJSON := `{"old_password": "123456", "new_password": "123123"}`
+		e := echo.New()
+		req := httptest.NewRequest(http.MethodPost, "/reset/password", strings.NewReader(resetPasswordJSON))
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		utilsMock.On("GetUser", &c).Return(user)
+
+		handler := NewUserHandler(serviceMock, utilsMock)
+
+		// Assertions
+		if assert.NoError(t, handler.ResetPassword(c)) {
+			assert.Equal(t, http.StatusOK, rec.Code)
+		}
+	})
+
+	t.Run("validate error", func(t *testing.T) {
+
+		utilsMock := mocks.NewIUtils(t)
+		serviceMock := mocks.NewIUserService(t)
+		var resetPasswordRequest request.UserResetPasswordDTO
+		resetPasswordRequest.OldPassword = "123456"
+		resetPasswordRequest.NewPassword = "123123"
+
+		//serviceMock.On("ResetPassword", user, resetPasswordRequest).Return(nil)
+
+		resetPasswordJSON := `{"old_password": 12, "new_password": "123123"}`
+		e := echo.New()
+		req := httptest.NewRequest(http.MethodPost, "/reset/password", strings.NewReader(resetPasswordJSON))
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		//utilsMock.On("GetUser", &c).Return(user)
+
+		handler := NewUserHandler(serviceMock, utilsMock)
+
+		// Assertions
+		if assert.NoError(t, handler.ResetPassword(c)) {
+			assert.Equal(t, http.StatusBadRequest, rec.Code)
+		}
+	})
+
+	t.Run("service error", func(t *testing.T) {
+		user := models.User{
+			Name:     "test",
+			Surname:  "test surname",
+			Password: "$2a$04$HnXu0HWPzJlFR6R5g2K81OywH.roBdJn1Ms7jiqua2yx38aI2zNnO", // 123123 demek
+		}
+		utilsMock := mocks.NewIUtils(t)
+		serviceMock := mocks.NewIUserService(t)
+		var resetPasswordRequest request.UserResetPasswordDTO
+		resetPasswordRequest.OldPassword = "123456"
+		resetPasswordRequest.NewPassword = "123123"
+
+		serviceMock.On("ResetPassword", user, resetPasswordRequest).Return(errors.New("some error"))
+
+		resetPasswordJSON := `{"old_password": "123456", "new_password": "123123"}`
+		e := echo.New()
+		req := httptest.NewRequest(http.MethodPost, "/reset/password", strings.NewReader(resetPasswordJSON))
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		utilsMock.On("GetUser", &c).Return(user)
+
+		handler := NewUserHandler(serviceMock, utilsMock)
+
+		// Assertions
+		if assert.NoError(t, handler.ResetPassword(c)) {
 			assert.Equal(t, http.StatusBadRequest, rec.Code)
 		}
 	})

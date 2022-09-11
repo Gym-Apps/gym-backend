@@ -3,8 +3,10 @@
 package mocks
 
 import (
-	request "github.com/Gym-Apps/gym-backend/dto/request"
+	models "github.com/Gym-Apps/gym-backend/models"
 	mock "github.com/stretchr/testify/mock"
+
+	request "github.com/Gym-Apps/gym-backend/dto/request"
 
 	response "github.com/Gym-Apps/gym-backend/dto/response"
 )
@@ -33,6 +35,20 @@ func (_m *IUserService) Login(userLoginRequest request.UserLoginDTO) (response.U
 	}
 
 	return r0, r1
+}
+
+// ResetPassword provides a mock function with given fields: _a0, _a1
+func (_m *IUserService) ResetPassword(_a0 models.User, _a1 request.UserResetPasswordDTO) error {
+	ret := _m.Called(_a0, _a1)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(models.User, request.UserResetPasswordDTO) error); ok {
+		r0 = rf(_a0, _a1)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
 }
 
 type mockConstructorTestingTNewIUserService interface {

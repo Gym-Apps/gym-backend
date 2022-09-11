@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/Gym-Apps/gym-backend/internal/utils/response"
 	"github.com/go-playground/locales/en"
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
@@ -42,7 +43,7 @@ func Validator(c *echo.Context, requestRules interface{}) error {
 		translateErrorsString += ", "
 	}
 
-	_ = (*c).JSON(http.StatusBadRequest, translateErrorsString)
+	_ = (*c).JSON(http.StatusBadRequest, response.Response(http.StatusBadRequest, translateErrorsString))
 	return err
 
 }
