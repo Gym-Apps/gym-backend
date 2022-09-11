@@ -14,6 +14,7 @@ import (
 	"github.com/Gym-Apps/gym-backend/models"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 func setup(method string, path string, body io.Reader) {
@@ -27,7 +28,7 @@ func TestLogin(t *testing.T) {
 		loginRequest.Password = "123123"
 		loginRequest.Phone = "5551755445"
 
-		serviceMock.On("Login", loginRequest).Return(response.UserLoginDTO{
+		serviceMock.On("Login", mock.Anything, loginRequest).Return(response.UserLoginDTO{
 			ID:      1,
 			Name:    "baran",
 			Surname: "atbaş",
@@ -76,7 +77,7 @@ func TestLogin(t *testing.T) {
 		loginRequest.Password = "123123"
 		loginRequest.Phone = "5551755445"
 
-		serviceMock.On("Login", loginRequest).Return(response.UserLoginDTO{
+		serviceMock.On("Login", mock.Anything, loginRequest).Return(response.UserLoginDTO{
 			ID:      1,
 			Name:    "baran",
 			Surname: "atbaş",
@@ -112,15 +113,15 @@ func TestResetPassword(t *testing.T) {
 		resetPasswordRequest.OldPassword = "123456"
 		resetPasswordRequest.NewPassword = "123123"
 
-		serviceMock.On("ResetPassword", user, resetPasswordRequest).Return(nil)
-
 		resetPasswordJSON := `{"old_password": "123456", "new_password": "123123"}`
 		e := echo.New()
 		req := httptest.NewRequest(http.MethodPost, "/reset/password", strings.NewReader(resetPasswordJSON))
 		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
+		//ctx := c.Request().Context()
 		utilsMock.On("GetUser", &c).Return(user)
+		serviceMock.On("ResetPassword", mock.Anything, user, resetPasswordRequest).Return(nil)
 
 		handler := NewUserHandler(serviceMock, utilsMock)
 
@@ -168,7 +169,7 @@ func TestResetPassword(t *testing.T) {
 		resetPasswordRequest.OldPassword = "123456"
 		resetPasswordRequest.NewPassword = "123123"
 
-		serviceMock.On("ResetPassword", user, resetPasswordRequest).Return(errors.New("some error"))
+		serviceMock.On("ResetPassword", mock.Anything, user, resetPasswordRequest).Return(errors.New("some error"))
 
 		resetPasswordJSON := `{"old_password": "123456", "new_password": "123123"}`
 		e := echo.New()

@@ -20,7 +20,6 @@ func TestLogin(t *testing.T) {
 	t.Run("first test", func(t *testing.T) {
 		ctx := context.Background()
 		repoMock := mocks.NewIUserRepository(t)
-		//repoMock.On("WithContext", mock.Anything).Return(&UserService{})
 		repoMock.On("Login", mock.Anything, userLoginRequest.Phone).Return(models.User{
 			Name:       "baran",
 			Surname:    "atbaş",
@@ -40,7 +39,6 @@ func TestLogin(t *testing.T) {
 	t.Run("second test", func(t *testing.T) {
 		ctx := context.Background()
 		repoMock := mocks.NewIUserRepository(t)
-		//repoMock.On("WithContext", mock.Anything).Return(*repoMock)
 		repoMock.On("Login", mock.Anything, userLoginRequest.Phone).Return(models.User{
 			Name:       "baran",
 			Surname:    "atbaş",
