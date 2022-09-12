@@ -94,13 +94,13 @@ func (s *UserService) Register(ctx context.Context, userRegisterRequest request.
 	ctx, cancel := context.WithTimeout(ctx, db.Time)
 	defer cancel()
 
-	isDuplicateEmail := s.repository.IsDuplicateEmail(userRegisterRequest.Email)
+	isDuplicateEmail := s.repository.IsDuplicateEmail(ctx,userRegisterRequest.Email)
 	if isDuplicateEmail {
 		err := errors.New("Bu e-mail adresi  farklı bir kullanıcı tarafından kullanılmaktadır.")
 		return response.UserRegisterDTO{}, err
 	}
 
-	isDuplicatePhone := s.repository.IsDuplicatePhone(userRegisterRequest.Phone)
+	isDuplicatePhone := s.repository.IsDuplicatePhone(ctx,userRegisterRequest.Phone)
 	if isDuplicatePhone {
 		err := errors.New("Bu telefon numarası  farklı bir kullanıcı tarafından kullanılmaktadır.")
 		return response.UserRegisterDTO{}, err
@@ -134,7 +134,7 @@ func (s *UserService) Register(ctx context.Context, userRegisterRequest request.
 		GenderName:  "Erkek",
 		Password:    string(hashPassword),
 	}
-	err = s.repository.Register(&newUser)
+	err = s.repository.Register(ctx,&newUser)
 	if err != nil {
 		err = errors.New("Kayıt işlemi başarısız oldu. Lütfen bilgilerinizi kontrol ediniz.")
 		return response.UserRegisterDTO{}, err

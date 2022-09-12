@@ -14,13 +14,13 @@ type IUserRepository struct {
 	mock.Mock
 }
 
-// IsDuplicateEmail provides a mock function with given fields: email
-func (_m *IUserRepository) IsDuplicateEmail(email string) bool {
-	ret := _m.Called(email)
+// IsDuplicateEmail provides a mock function with given fields: ctx, email
+func (_m *IUserRepository) IsDuplicateEmail(ctx context.Context, email string) bool {
+	ret := _m.Called(ctx, email)
 
 	var r0 bool
-	if rf, ok := ret.Get(0).(func(string) bool); ok {
-		r0 = rf(email)
+	if rf, ok := ret.Get(0).(func(context.Context, string) bool); ok {
+		r0 = rf(ctx, email)
 	} else {
 		r0 = ret.Get(0).(bool)
 	}
@@ -28,13 +28,13 @@ func (_m *IUserRepository) IsDuplicateEmail(email string) bool {
 	return r0
 }
 
-// IsDuplicatePhone provides a mock function with given fields: phone
-func (_m *IUserRepository) IsDuplicatePhone(phone string) bool {
-	ret := _m.Called(phone)
+// IsDuplicatePhone provides a mock function with given fields: ctx, phone
+func (_m *IUserRepository) IsDuplicatePhone(ctx context.Context, phone string) bool {
+	ret := _m.Called(ctx, phone)
 
 	var r0 bool
-	if rf, ok := ret.Get(0).(func(string) bool); ok {
-		r0 = rf(phone)
+	if rf, ok := ret.Get(0).(func(context.Context, string) bool); ok {
+		r0 = rf(ctx, phone)
 	} else {
 		r0 = ret.Get(0).(bool)
 	}
@@ -63,13 +63,13 @@ func (_m *IUserRepository) Login(ctx context.Context, phone string) (models.User
 	return r0, r1
 }
 
-// Register provides a mock function with given fields: _a0
-func (_m *IUserRepository) Register(_a0 *models.User) error {
-	ret := _m.Called(_a0)
+// Register provides a mock function with given fields: ctx, _a1
+func (_m *IUserRepository) Register(ctx context.Context, _a1 *models.User) error {
+	ret := _m.Called(ctx, _a1)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(*models.User) error); ok {
-		r0 = rf(_a0)
+	if rf, ok := ret.Get(0).(func(context.Context, *models.User) error); ok {
+		r0 = rf(ctx, _a1)
 	} else {
 		r0 = ret.Error(0)
 	}

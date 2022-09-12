@@ -214,9 +214,9 @@ func TestRegister(t *testing.T) {
 		}
 
 		repoMock := mocks.NewIUserRepository(t)
-		repoMock.On("IsDuplicateEmail", userRegisterRequest.Email).Return(false)
-		repoMock.On("IsDuplicatePhone", userRegisterRequest.Phone).Return(false)
-		repoMock.On("Register", &user).Return(nil)
+		repoMock.On("IsDuplicateEmail", mock.Anything, userRegisterRequest.Email).Return(false)
+		repoMock.On("IsDuplicatePhone", mock.Anything, userRegisterRequest.Phone).Return(false)
+		repoMock.On("Register", mock.Anything, &user).Return(nil)
 
 		userService := NewUserService(repoMock, service.Service{Utils: utilsMock})
 		ctx := context.Background()
@@ -229,7 +229,7 @@ func TestRegister(t *testing.T) {
 	t.Run("duplicate e-mail", func(t *testing.T) {
 
 		repoMock := mocks.NewIUserRepository(t)
-		repoMock.On("IsDuplicateEmail", userRegisterRequest.Email).Return(true)
+		repoMock.On("IsDuplicateEmail", mock.Anything, userRegisterRequest.Email).Return(true)
 
 		userService := NewUserService(repoMock, service.Service{Utils: nil})
 		ctx := context.Background()
@@ -242,8 +242,8 @@ func TestRegister(t *testing.T) {
 	t.Run("duplicate phone", func(t *testing.T) {
 
 		repoMock := mocks.NewIUserRepository(t)
-		repoMock.On("IsDuplicateEmail", userRegisterRequest.Email).Return(false)
-		repoMock.On("IsDuplicatePhone", userRegisterRequest.Phone).Return(true)
+		repoMock.On("IsDuplicateEmail", mock.Anything, userRegisterRequest.Email).Return(false)
+		repoMock.On("IsDuplicatePhone", mock.Anything, userRegisterRequest.Phone).Return(true)
 
 		userService := NewUserService(repoMock, service.Service{Utils: nil})
 		ctx := context.Background()
@@ -258,8 +258,8 @@ func TestRegister(t *testing.T) {
 		utilsMock.On("GeneratePassword", userRegisterRequest.Password).Return("", errors.New("Şifre oluşturulamadı."))
 
 		repoMock := mocks.NewIUserRepository(t)
-		repoMock.On("IsDuplicateEmail", userRegisterRequest.Email).Return(false)
-		repoMock.On("IsDuplicatePhone", userRegisterRequest.Phone).Return(false)
+		repoMock.On("IsDuplicateEmail", mock.Anything, userRegisterRequest.Email).Return(false)
+		repoMock.On("IsDuplicatePhone", mock.Anything, userRegisterRequest.Phone).Return(false)
 
 		userService := NewUserService(repoMock, service.Service{Utils: utilsMock})
 		ctx := context.Background()
@@ -275,8 +275,8 @@ func TestRegister(t *testing.T) {
 		utilsMock.On("EqualPassword", "$2a$04$/gKgvJiNWsTt8VmXkb/Al.N5eOZDTaVTFlrjb4lgILIoguAyPj5Yq", userRegisterRequest.Password).Return(false)
 
 		repoMock := mocks.NewIUserRepository(t)
-		repoMock.On("IsDuplicateEmail", userRegisterRequest.Email).Return(false)
-		repoMock.On("IsDuplicatePhone", userRegisterRequest.Phone).Return(false)
+		repoMock.On("IsDuplicateEmail", mock.Anything, userRegisterRequest.Email).Return(false)
+		repoMock.On("IsDuplicatePhone", mock.Anything, userRegisterRequest.Phone).Return(false)
 
 		userService := NewUserService(repoMock, service.Service{Utils: utilsMock})
 		ctx := context.Background()
@@ -308,9 +308,9 @@ func TestRegister(t *testing.T) {
 		}
 
 		repoMock := mocks.NewIUserRepository(t)
-		repoMock.On("IsDuplicateEmail", userRegisterRequest.Email).Return(false)
-		repoMock.On("IsDuplicatePhone", userRegisterRequest.Phone).Return(false)
-		repoMock.On("Register", &user).Return(errors.New("Kayıt işlemi başarısız oldu. Lütfen bilgilerinizi kontrol ediniz."))
+		repoMock.On("IsDuplicateEmail", mock.Anything, userRegisterRequest.Email).Return(false)
+		repoMock.On("IsDuplicatePhone", mock.Anything, userRegisterRequest.Phone).Return(false)
+		repoMock.On("Register",mock.Anything, &user).Return(errors.New("Kayıt işlemi başarısız oldu. Lütfen bilgilerinizi kontrol ediniz."))
 
 		userService := NewUserService(repoMock, service.Service{Utils: utilsMock})
 		ctx := context.Background()

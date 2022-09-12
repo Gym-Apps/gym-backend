@@ -203,7 +203,7 @@ func TestRegister(t *testing.T) {
 			Gender:      2,
 		}
 
-		serviceMock.On("Register", request).Return(response.UserRegisterDTO{
+		serviceMock.On("Register",mock.Anything, request).Return(response.UserRegisterDTO{
 			Name:        request.Name,
 			Surname:     request.Surname,
 			Phone:       request.Phone,
@@ -232,7 +232,6 @@ func TestRegister(t *testing.T) {
 
 		if assert.NoError(t, handler.Register(c)) {
 			assert.Equal(t, http.StatusOK, rec.Code)
-
 		}
 
 	})
@@ -271,7 +270,7 @@ func TestRegister(t *testing.T) {
 			Gender:      2,
 		}
 
-		serviceMock.On("Register", request).Return(response.UserRegisterDTO{}, errors.New("Service Error"))
+		serviceMock.On("Register", mock.Anything, request).Return(response.UserRegisterDTO{}, errors.New("Service Error"))
 
 		userJSON := `
 		{
