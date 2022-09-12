@@ -4,4 +4,4 @@
 
 go test -v -cover   ./... -coverprofile=name.out
 
-go tool cover -html=name 
+go tool cover -html=name.out 

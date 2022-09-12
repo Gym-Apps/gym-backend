@@ -39,6 +39,27 @@ func (_m *IUserService) Login(ctx context.Context, userLoginRequest request.User
 	return r0, r1
 }
 
+// Register provides a mock function with given fields: ctx, userRegisterRequest
+func (_m *IUserService) Register(ctx context.Context, userRegisterRequest request.UserRegisterDTO) (response.UserRegisterDTO, error) {
+	ret := _m.Called(ctx, userRegisterRequest)
+
+	var r0 response.UserRegisterDTO
+	if rf, ok := ret.Get(0).(func(context.Context, request.UserRegisterDTO) response.UserRegisterDTO); ok {
+		r0 = rf(ctx, userRegisterRequest)
+	} else {
+		r0 = ret.Get(0).(response.UserRegisterDTO)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, request.UserRegisterDTO) error); ok {
+		r1 = rf(ctx, userRegisterRequest)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // ResetPassword provides a mock function with given fields: ctx, _a1, _a2
 func (_m *IUserService) ResetPassword(ctx context.Context, _a1 models.User, _a2 request.UserResetPasswordDTO) error {
 	ret := _m.Called(ctx, _a1, _a2)

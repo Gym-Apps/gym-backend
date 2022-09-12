@@ -11,6 +11,7 @@ import (
 	jwtConfig "github.com/Gym-Apps/gym-backend/internal/config/jwt"
 	userRepo "github.com/Gym-Apps/gym-backend/internal/repository/user"
 	"github.com/Gym-Apps/gym-backend/internal/service"
+	"github.com/Gym-Apps/gym-backend/internal/utils"
 	jwtPackage "github.com/Gym-Apps/gym-backend/internal/utils/jwt"
 	"github.com/Gym-Apps/gym-backend/models"
 	"github.com/dgrijalva/jwt-go"
@@ -19,6 +20,7 @@ import (
 
 type IUserService interface {
 	Login(ctx context.Context, userLoginRequest request.UserLoginDTO) (response.UserLoginDTO, error)
+	Register(ctx context.Context, userRegisterRequest request.UserRegisterDTO) (response.UserRegisterDTO, error)
 	ResetPassword(ctx context.Context, user models.User, request request.UserResetPasswordDTO) error
 }
 
@@ -65,6 +67,7 @@ func (s *UserService) Login(ctx context.Context, userLoginRequest request.UserLo
 }
 
 func (s *UserService) ResetPassword(ctx context.Context, user models.User, request request.UserResetPasswordDTO) error {
+
 	ctx, cancel := context.WithTimeout(ctx, db.Time)
 	defer cancel()
 	passwordControl := s.Service.Utils.EqualPassword(user.Password, request.OldPassword)
@@ -85,4 +88,60 @@ func (s *UserService) ResetPassword(ctx context.Context, user models.User, reque
 	}
 
 	return nil
+}
+func (s *UserService) Register(ctx context.Context, userRegisterRequest request.UserRegisterDTO) (response.UserRegisterDTO, error) {
+
+	ctx, cancel := context.WithTimeout(ctx, db.Time)
+	defer cancel()
+
+	isDuplicateEmail := s.repository.IsDuplicateEmail(ctx,userRegisterRequest.Email)
+	if isDuplicateEmail {
+		err := errors.New("Bu e-mail adresi  farklı bir kullanıcı tarafından kullanılmaktadır.")
+		return response.UserRegisterDTO{}, err
+	}
+
+	isDuplicatePhone := s.repository.IsDuplicatePhone(ctx,userRegisterRequest.Phone)
+	if isDuplicatePhone {
+		err := errors.New("Bu telefon numarası  farklı bir kullanıcı tarafından kullanılmaktadır.")
+		return response.UserRegisterDTO{}, err
+	}
+
+	hashPassword, err := s.Utils.GeneratePassword(userRegisterRequest.Password)
+	if err != nil {
+		err := errors.New("Şifre oluşturulamadı.")
+		return response.UserRegisterDTO{}, err
+	}
+
+	passwordControl := s.Utils.EqualPassword(hashPassword, userRegisterRequest.Password)
+	if !passwordControl {
+		return response.UserRegisterDTO{}, errors.New("Şifre doğru bir şekilde oluşturulamadı.")
+	}
+
+	birthday, err := utils.EuToTime(userRegisterRequest.Birthday)
+	if err != nil {
+		return response.UserRegisterDTO{}, errors.New("Tarih dönüştürülürken hata oluştu")
+	}
+
+	newUser := models.User{
+		Name:        userRegisterRequest.Name,
+		Surname:     userRegisterRequest.Surname,
+		Email:       userRegisterRequest.Email,
+		Phone:       userRegisterRequest.Phone,
+		Birthday:    birthday,
+		AccountType: models.AccountType(userRegisterRequest.AccountType),
+		AccountName: "Sporcu",
+		Gender:      models.Gender(userRegisterRequest.Gender),
+		GenderName:  "Erkek",
+		Password:    string(hashPassword),
+	}
+	err = s.repository.Register(ctx,&newUser)
+	if err != nil {
+		err = errors.New("Kayıt işlemi başarısız oldu. Lütfen bilgilerinizi kontrol ediniz.")
+		return response.UserRegisterDTO{}, err
+	}
+	var userRegisterResponse response.UserRegisterDTO
+	userRegisterResponse.Convert(newUser)
+
+	return userRegisterResponse, nil
+
 }

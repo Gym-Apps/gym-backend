@@ -187,3 +187,114 @@ func TestResetPassword(t *testing.T) {
 		}
 	})
 }
+
+func TestRegister(t *testing.T) {
+	t.Run("successful register", func(t *testing.T) {
+		serviceMock := mocks.NewIUserService(t)
+
+		request := request.UserRegisterDTO{
+			Name:        "Test",
+			Surname:     "test",
+			Phone:       "5555555555",
+			Email:       "example@example.com",
+			Password:    "123456",
+			Birthday:    "02.01.2006",
+			AccountType: 2,
+			Gender:      2,
+		}
+
+		serviceMock.On("Register",mock.Anything, request).Return(response.UserRegisterDTO{
+			Name:        request.Name,
+			Surname:     request.Surname,
+			Phone:       request.Phone,
+			Email:       request.Email,
+			Gender:      "Erkek",
+			AccountName: "Sporcu",
+		}, nil)
+
+		userJSON := `
+		{
+		"name":"Test",
+		"surname":"test",
+		"phone":"5555555555",
+		"password":"123456",
+		"email":"example@example.com",
+		"account_type" :2,
+		"gender":2,
+		"birthday":"02.01.2006" 
+		}`
+		e := echo.New()
+		req := httptest.NewRequest(http.MethodPost, "/register", strings.NewReader(userJSON))
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		handler := NewUserHandler(serviceMock, nil)
+
+		if assert.NoError(t, handler.Register(c)) {
+			assert.Equal(t, http.StatusOK, rec.Code)
+		}
+
+	})
+
+	t.Run("validate error", func(t *testing.T) {
+		serviceMock := mocks.NewIUserService(t)
+
+		userJSON := `{
+		"name":"Test",
+		"surname":"test",
+		"phone":"5555555555",
+		"password":"123456", }`
+		e := echo.New()
+		req := httptest.NewRequest(http.MethodPost, "/register", strings.NewReader(userJSON))
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		handler := NewUserHandler(serviceMock, nil)
+
+		if assert.NoError(t, handler.Register(c)) {
+			assert.Equal(t, http.StatusBadRequest, rec.Code)
+		}
+	})
+
+	t.Run("service error", func(t *testing.T) {
+		serviceMock := mocks.NewIUserService(t)
+
+		request := request.UserRegisterDTO{
+			Name:        "Test",
+			Surname:     "test",
+			Phone:       "5555555555",
+			Email:       "example@example.com",
+			Password:    "123456",
+			Birthday:    "02.01.2006",
+			AccountType: 2,
+			Gender:      2,
+		}
+
+		serviceMock.On("Register", mock.Anything, request).Return(response.UserRegisterDTO{}, errors.New("Service Error"))
+
+		userJSON := `
+		{
+		"name":"Test",
+		"surname":"test",
+		"phone":"5555555555",
+		"password":"123456",
+		"email":"example@example.com",
+		"account_type" :2,
+		"gender":2,
+		"birthday":"02.01.2006" 
+		}`
+		e := echo.New()
+		req := httptest.NewRequest(http.MethodPost, "/register", strings.NewReader(userJSON))
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		handler := NewUserHandler(serviceMock, nil)
+
+		if assert.NoError(t, handler.Register(c)) {
+			assert.Equal(t, http.StatusBadRequest, rec.Code)
+
+		}
+
+	})
+
+}

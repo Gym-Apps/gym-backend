@@ -14,6 +14,34 @@ type IUserRepository struct {
 	mock.Mock
 }
 
+// IsDuplicateEmail provides a mock function with given fields: ctx, email
+func (_m *IUserRepository) IsDuplicateEmail(ctx context.Context, email string) bool {
+	ret := _m.Called(ctx, email)
+
+	var r0 bool
+	if rf, ok := ret.Get(0).(func(context.Context, string) bool); ok {
+		r0 = rf(ctx, email)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+
+	return r0
+}
+
+// IsDuplicatePhone provides a mock function with given fields: ctx, phone
+func (_m *IUserRepository) IsDuplicatePhone(ctx context.Context, phone string) bool {
+	ret := _m.Called(ctx, phone)
+
+	var r0 bool
+	if rf, ok := ret.Get(0).(func(context.Context, string) bool); ok {
+		r0 = rf(ctx, phone)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+
+	return r0
+}
+
 // Login provides a mock function with given fields: ctx, phone
 func (_m *IUserRepository) Login(ctx context.Context, phone string) (models.User, error) {
 	ret := _m.Called(ctx, phone)
@@ -33,6 +61,20 @@ func (_m *IUserRepository) Login(ctx context.Context, phone string) (models.User
 	}
 
 	return r0, r1
+}
+
+// Register provides a mock function with given fields: ctx, _a1
+func (_m *IUserRepository) Register(ctx context.Context, _a1 *models.User) error {
+	ret := _m.Called(ctx, _a1)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, *models.User) error); ok {
+		r0 = rf(ctx, _a1)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
 }
 
 // UpdatePassword provides a mock function with given fields: ctx, userID, password

@@ -16,6 +16,7 @@ func Init(router *echo.Echo, tx *gorm.DB) {
 	auth := router.Group("")
 	auth.Use(middleware.JWTWithConfig(jwt.JWTConfig))
 	auth.Use(middlewares.VerifyToken)
+	router.POST("/register", userHandler.Register)
 
 	auth.POST("/reset/password", userHandler.ResetPassword)
 }

@@ -10,6 +10,9 @@ import (
 
 type IUserRepository interface {
 	Login(ctx context.Context, phone string) (models.User, error)
+	Register(ctx context.Context, user *models.User) error
+	IsDuplicatePhone(ctx context.Context, phone string) bool
+	IsDuplicateEmail(ctx context.Context, email string) bool
 	UpdatePassword(ctx context.Context, userID uint, password string) error
 	//WithContext(ctx context.Context) IUserRepository
 }
@@ -34,6 +37,40 @@ func (u *UserRepository) Login(ctx context.Context, phone string) (models.User, 
 	err := u.db.Where("phone = ?", phone).First(&user).Error
 	u.mu.Unlock()
 	return user, err
+}
+
+func (u *UserRepository) Register(ctx context.Context, user *models.User) error {
+	u.mu.Lock()
+	err := u.db.Create(user).Error
+	u.mu.Unlock()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (u *UserRepository) IsDuplicatePhone(ctx context.Context, phone string) bool {
+	user := models.User{}
+	u.mu.Lock()
+	err := u.db.Where("phone=?", phone).First(&user).Error
+	u.mu.Unlock()
+	if err != nil || user.ID <= 0 {
+		return false
+	}
+	return true
+
+}
+
+func (u *UserRepository) IsDuplicateEmail(ctx context.Context, email string) bool {
+	var user models.User
+	u.mu.Lock()
+	err := u.db.Where("email=?", email).First(&user).Error
+	u.mu.Unlock()
+	if err != nil || user.ID <= 0 {
+		return false
+	}
+	return true
 }
 
 func (u *UserRepository) UpdatePassword(ctx context.Context, userID uint, password string) error {
