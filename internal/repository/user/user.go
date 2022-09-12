@@ -26,22 +26,17 @@ func NewUserRepository(db *gorm.DB) IUserRepository {
 	return &UserRepository{db: db}
 }
 
-// func (u *UserRepository) WithContext(ctx context.Context) IUserRepository {
-// 	u.db = u.db.WithContext(ctx)
-// 	return u
-// }
-
 func (u *UserRepository) Login(ctx context.Context, phone string) (models.User, error) {
 	u.mu.Lock()
 	var user models.User
-	err := u.db.Where("phone = ?", phone).First(&user).Error
+	err := u.db.WithContext(ctx).Where("phone = ?", phone).First(&user).Error
 	u.mu.Unlock()
 	return user, err
 }
 
 func (u *UserRepository) Register(ctx context.Context, user *models.User) error {
 	u.mu.Lock()
-	err := u.db.Create(user).Error
+	err := u.db.WithContext(ctx).Create(user).Error
 	u.mu.Unlock()
 	if err != nil {
 		return err
@@ -53,7 +48,7 @@ func (u *UserRepository) Register(ctx context.Context, user *models.User) error 
 func (u *UserRepository) IsDuplicatePhone(ctx context.Context, phone string) bool {
 	user := models.User{}
 	u.mu.Lock()
-	err := u.db.Where("phone=?", phone).First(&user).Error
+	err := u.db.WithContext(ctx).Where("phone=?", phone).First(&user).Error
 	u.mu.Unlock()
 	if err != nil || user.ID <= 0 {
 		return false
@@ -65,7 +60,7 @@ func (u *UserRepository) IsDuplicatePhone(ctx context.Context, phone string) boo
 func (u *UserRepository) IsDuplicateEmail(ctx context.Context, email string) bool {
 	var user models.User
 	u.mu.Lock()
-	err := u.db.Where("email=?", email).First(&user).Error
+	err := u.db.WithContext(ctx).Where("email=?", email).First(&user).Error
 	u.mu.Unlock()
 	if err != nil || user.ID <= 0 {
 		return false
@@ -75,7 +70,7 @@ func (u *UserRepository) IsDuplicateEmail(ctx context.Context, email string) boo
 
 func (u *UserRepository) UpdatePassword(ctx context.Context, userID uint, password string) error {
 	u.mu.Lock()
-	err := u.db.Model(&models.User{}).Where("id = ?", userID).Update("password", password).Error
+	err := u.db.WithContext(ctx).Model(&models.User{}).Where("id = ?", userID).Update("password", password).Error
 	u.mu.Unlock()
 	return err
 }
