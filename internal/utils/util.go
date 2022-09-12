@@ -12,6 +12,7 @@ type IUtils interface {
 	GetUser(c *echo.Context) models.User
 	EqualPassword(old, new string) bool
 	GeneratePassword(password string) (string, error)
+	//EuToTime(StringDate string) (time.Time, error)
 }
 
 type Utils struct{}

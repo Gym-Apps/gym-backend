@@ -11,6 +11,7 @@ import (
 	jwtConfig "github.com/Gym-Apps/gym-backend/internal/config/jwt"
 	userRepo "github.com/Gym-Apps/gym-backend/internal/repository/user"
 	"github.com/Gym-Apps/gym-backend/internal/service"
+	"github.com/Gym-Apps/gym-backend/internal/utils"
 	jwtPackage "github.com/Gym-Apps/gym-backend/internal/utils/jwt"
 	"github.com/Gym-Apps/gym-backend/models"
 	"github.com/dgrijalva/jwt-go"
@@ -19,7 +20,7 @@ import (
 
 type IUserService interface {
 	Login(ctx context.Context, userLoginRequest request.UserLoginDTO) (response.UserLoginDTO, error)
-	Register(ctx context.Context,userRegisterRequest request.UserRegisterDTO) (response.UserRegisterDTO, error)
+	Register(ctx context.Context, userRegisterRequest request.UserRegisterDTO) (response.UserRegisterDTO, error)
 	ResetPassword(ctx context.Context, user models.User, request request.UserResetPasswordDTO) error
 }
 
@@ -88,7 +89,7 @@ func (s *UserService) ResetPassword(ctx context.Context, user models.User, reque
 
 	return nil
 }
-func (s *UserService) Register(ctx context.Context,userRegisterRequest request.UserRegisterDTO) (response.UserRegisterDTO, error) {
+func (s *UserService) Register(ctx context.Context, userRegisterRequest request.UserRegisterDTO) (response.UserRegisterDTO, error) {
 
 	ctx, cancel := context.WithTimeout(ctx, db.Time)
 	defer cancel()
@@ -105,13 +106,13 @@ func (s *UserService) Register(ctx context.Context,userRegisterRequest request.U
 		return response.UserRegisterDTO{}, err
 	}
 
-	hashPassword, err := s.utils.GeneratePassword(userRegisterRequest.Password)
+	hashPassword, err := s.Utils.GeneratePassword(userRegisterRequest.Password)
 	if err != nil {
 		err := errors.New("Şifre oluşturulamadı.")
 		return response.UserRegisterDTO{}, err
 	}
 
-	passwordControl := s.utils.EqualPassword(hashPassword, userRegisterRequest.Password)
+	passwordControl := s.Utils.EqualPassword(hashPassword, userRegisterRequest.Password)
 	if !passwordControl {
 		return response.UserRegisterDTO{}, errors.New("Şifre doğru bir şekilde oluşturulamadı.")
 	}

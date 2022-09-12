@@ -35,7 +35,6 @@ func (_m *IUserRepository) IsDuplicatePhone(phone string) bool {
 	var r0 bool
 	if rf, ok := ret.Get(0).(func(string) bool); ok {
 		r0 = rf(phone)
-
 	} else {
 		r0 = ret.Get(0).(bool)
 	}
@@ -77,7 +76,6 @@ func (_m *IUserRepository) Register(_a0 *models.User) error {
 
 	return r0
 }
-
 
 // UpdatePassword provides a mock function with given fields: ctx, userID, password
 func (_m *IUserRepository) UpdatePassword(ctx context.Context, userID uint, password string) error {
