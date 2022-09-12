@@ -3,6 +3,8 @@
 package mocks
 
 import (
+	context "context"
+
 	models "github.com/Gym-Apps/gym-backend/models"
 	mock "github.com/stretchr/testify/mock"
 
@@ -16,20 +18,20 @@ type IUserService struct {
 	mock.Mock
 }
 
-// Login provides a mock function with given fields: userLoginRequest
-func (_m *IUserService) Login(userLoginRequest request.UserLoginDTO) (response.UserLoginDTO, error) {
-	ret := _m.Called(userLoginRequest)
+// Login provides a mock function with given fields: ctx, userLoginRequest
+func (_m *IUserService) Login(ctx context.Context, userLoginRequest request.UserLoginDTO) (response.UserLoginDTO, error) {
+	ret := _m.Called(ctx, userLoginRequest)
 
 	var r0 response.UserLoginDTO
-	if rf, ok := ret.Get(0).(func(request.UserLoginDTO) response.UserLoginDTO); ok {
-		r0 = rf(userLoginRequest)
+	if rf, ok := ret.Get(0).(func(context.Context, request.UserLoginDTO) response.UserLoginDTO); ok {
+		r0 = rf(ctx, userLoginRequest)
 	} else {
 		r0 = ret.Get(0).(response.UserLoginDTO)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(request.UserLoginDTO) error); ok {
-		r1 = rf(userLoginRequest)
+	if rf, ok := ret.Get(1).(func(context.Context, request.UserLoginDTO) error); ok {
+		r1 = rf(ctx, userLoginRequest)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -37,20 +39,20 @@ func (_m *IUserService) Login(userLoginRequest request.UserLoginDTO) (response.U
 	return r0, r1
 }
 
-// Register provides a mock function with given fields: userRegisterRequest
-func (_m *IUserService) Register(userRegisterRequest request.UserRegisterDTO) (response.UserRegisterDTO, error) {
-	ret := _m.Called(userRegisterRequest)
+// Register provides a mock function with given fields: ctx, userRegisterRequest
+func (_m *IUserService) Register(ctx context.Context, userRegisterRequest request.UserRegisterDTO) (response.UserRegisterDTO, error) {
+	ret := _m.Called(ctx, userRegisterRequest)
 
 	var r0 response.UserRegisterDTO
-	if rf, ok := ret.Get(0).(func(request.UserRegisterDTO) response.UserRegisterDTO); ok {
-		r0 = rf(userRegisterRequest)
+	if rf, ok := ret.Get(0).(func(context.Context, request.UserRegisterDTO) response.UserRegisterDTO); ok {
+		r0 = rf(ctx, userRegisterRequest)
 	} else {
 		r0 = ret.Get(0).(response.UserRegisterDTO)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(request.UserRegisterDTO) error); ok {
-		r1 = rf(userRegisterRequest)
+	if rf, ok := ret.Get(1).(func(context.Context, request.UserRegisterDTO) error); ok {
+		r1 = rf(ctx, userRegisterRequest)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -58,13 +60,13 @@ func (_m *IUserService) Register(userRegisterRequest request.UserRegisterDTO) (r
 	return r0, r1
 }
 
-// ResetPassword provides a mock function with given fields: _a0, _a1
-func (_m *IUserService) ResetPassword(_a0 models.User, _a1 request.UserResetPasswordDTO) error {
-	ret := _m.Called(_a0, _a1)
+// ResetPassword provides a mock function with given fields: ctx, _a1, _a2
+func (_m *IUserService) ResetPassword(ctx context.Context, _a1 models.User, _a2 request.UserResetPasswordDTO) error {
+	ret := _m.Called(ctx, _a1, _a2)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(models.User, request.UserResetPasswordDTO) error); ok {
-		r0 = rf(_a0, _a1)
+	if rf, ok := ret.Get(0).(func(context.Context, models.User, request.UserResetPasswordDTO) error); ok {
+		r0 = rf(ctx, _a1, _a2)
 	} else {
 		r0 = ret.Error(0)
 	}

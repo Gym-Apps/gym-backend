@@ -1,6 +1,7 @@
 package user
 
 import (
+	"context"
 	"sync"
 
 	"github.com/Gym-Apps/gym-backend/models"
@@ -8,11 +9,12 @@ import (
 )
 
 type IUserRepository interface {
-	Login(phone string) (models.User, error)
+	Login(ctx context.Context, phone string) (models.User, error)
 	Register(user *models.User) error
 	IsDuplicatePhone(phone string) bool
     IsDuplicateEmail(email string) bool 
-	UpdatePassword(userID uint, password string) error
+	UpdatePassword(ctx context.Context, userID uint, password string) error
+	//WithContext(ctx context.Context) IUserRepository
 }
 
 type UserRepository struct {
@@ -24,7 +26,12 @@ func NewUserRepository(db *gorm.DB) IUserRepository {
 	return &UserRepository{db: db}
 }
 
-func (u *UserRepository) Login(phone string) (models.User, error) {
+// func (u *UserRepository) WithContext(ctx context.Context) IUserRepository {
+// 	u.db = u.db.WithContext(ctx)
+// 	return u
+// }
+
+func (u *UserRepository) Login(ctx context.Context, phone string) (models.User, error) {
 	u.mu.Lock()
 	var user models.User
 	err := u.db.Where("phone = ?", phone).First(&user).Error
@@ -45,7 +52,9 @@ func (u *UserRepository) Register(user *models.User) error {
 
 func (u *UserRepository) IsDuplicatePhone(phone string) bool {
 	user := models.User{}
+	u.mu.Lock()
 	err := u.db.Where("phone=?", phone).First(&user).Error
+	u.mu.Unlock()
 	if err != nil || user.ID <= 0 {
 		return false
 	}
@@ -55,14 +64,16 @@ func (u *UserRepository) IsDuplicatePhone(phone string) bool {
 
 func (u *UserRepository) IsDuplicateEmail(email string) bool {
 	var user models.User
+	u.mu.Lock()
 	err := u.db.Where("email=?", email).First(&user).Error
+	u.mu.Unlock()
 	if err != nil || user.ID <= 0 {
 		return false
 	}
 	return true
 }
 
-func (u *UserRepository) UpdatePassword(userID uint, password string) error {
+func (u *UserRepository) UpdatePassword(ctx context.Context, userID uint, password string) error {
 	u.mu.Lock()
 	err := u.db.Model(&models.User{}).Where("id = ?", userID).Update("password", password).Error
 	u.mu.Unlock()

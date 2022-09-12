@@ -1,6 +1,7 @@
 package user
 
 import (
+	"context"
 	"errors"
 	"time"
 
@@ -16,9 +17,9 @@ import (
 )
 
 type IUserService interface {
-	Login(userLoginRequest request.UserLoginDTO) (response.UserLoginDTO, error)
-	Register(userRegisterRequest request.UserRegisterDTO) (response.UserRegisterDTO, error)
-	ResetPassword(user models.User, request request.UserResetPasswordDTO) error
+	Login(ctx context.Context, userLoginRequest request.UserLoginDTO) (response.UserLoginDTO, error)
+	Register(ctx context.Context,userRegisterRequest request.UserRegisterDTO) (response.UserRegisterDTO, error)
+	ResetPassword(ctx context.Context, user models.User, request request.UserResetPasswordDTO) error
 }
 
 type UserService struct {
@@ -30,8 +31,11 @@ func NewUserService(repository userRepo.IUserRepository, utils utils.IUtils) IUs
 	return &UserService{repository: repository, utils: utils}
 }
 
-func (s *UserService) Login(userLoginRequest request.UserLoginDTO) (response.UserLoginDTO, error) {
-	user, err := s.repository.Login(userLoginRequest.Phone)
+func (s *UserService) Login(ctx context.Context, userLoginRequest request.UserLoginDTO) (response.UserLoginDTO, error) {
+	ctx, cancel := context.WithTimeout(ctx, 2*time.Second)
+	defer cancel()
+
+	user, err := s.repository.Login(ctx, userLoginRequest.Phone)
 	if err != nil {
 		return response.UserLoginDTO{}, err
 	}
@@ -60,8 +64,9 @@ func (s *UserService) Login(userLoginRequest request.UserLoginDTO) (response.Use
 	return userLoginResponse, nil
 }
 
-func (s *UserService) ResetPassword(user models.User, request request.UserResetPasswordDTO) error {
-	// passwordControl := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(request.OldPassword))
+func (s *UserService) ResetPassword(ctx context.Context, user models.User, request request.UserResetPasswordDTO) error {
+	ctx, cancel := context.WithTimeout(ctx, 2*time.Second)
+	defer cancel()
 	passwordControl := s.utils.EqualPassword(user.Password, request.OldPassword)
 	if !passwordControl {
 		return errors.New("Eski şifre doğrulanamadı.")
@@ -74,14 +79,17 @@ func (s *UserService) ResetPassword(user models.User, request request.UserResetP
 
 	password, _ := s.utils.GeneratePassword(request.NewPassword)
 
-	err := s.repository.UpdatePassword(user.ID, string(password))
+	err := s.repository.UpdatePassword(ctx, user.ID, string(password))
 	if err != nil {
 		return errors.New("şifre güncellemede sorun oluştu.")
 	}
 
 	return nil
 }
-func (s *UserService) Register(userRegisterRequest request.UserRegisterDTO) (response.UserRegisterDTO, error) {
+func (s *UserService) Register(ctx context.Context,userRegisterRequest request.UserRegisterDTO) (response.UserRegisterDTO, error) {
+
+	ctx, cancel := context.WithTimeout(ctx, 2*time.Second)
+	defer cancel()
 
 	isDuplicateEmail := s.repository.IsDuplicateEmail(userRegisterRequest.Email)
 	if isDuplicateEmail {
