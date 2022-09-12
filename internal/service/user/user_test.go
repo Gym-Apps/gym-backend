@@ -22,7 +22,7 @@ func TestLogin(t *testing.T) {
 	t.Run("first test", func(t *testing.T) {
 		ctx := context.Background()
 		repoMock := mocks.NewIUserRepository(t)
-		//repoMock.On("WithContext", mock.Anything).Return(&UserService{})
+
 		repoMock.On("Login", mock.Anything, userLoginRequest.Phone).Return(models.User{
 			Name:       "baran",
 			Surname:    "atbaş",
@@ -32,7 +32,7 @@ func TestLogin(t *testing.T) {
 			Password:   "$2a$04$HnXu0HWPzJlFR6R5g2K81OywH.roBdJn1Ms7jiqua2yx38aI2zNnO",
 		}, nil)
 
-		userService := NewUserService(repoMock, nil)
+		userService := NewUserService(repoMock, service.Service{Utils: nil})
 
 		userLoginResponse, err := userService.Login(ctx, userLoginRequest)
 		assert.Equal(t, err, nil)
@@ -42,7 +42,6 @@ func TestLogin(t *testing.T) {
 	t.Run("second test", func(t *testing.T) {
 		ctx := context.Background()
 		repoMock := mocks.NewIUserRepository(t)
-		//repoMock.On("WithContext", mock.Anything).Return(*repoMock)
 		repoMock.On("Login", mock.Anything, userLoginRequest.Phone).Return(models.User{
 			Name:       "baran",
 			Surname:    "atbaş",
@@ -52,7 +51,7 @@ func TestLogin(t *testing.T) {
 			Password:   "$2a$04$HnXu0HWPzJlFR6R5g2K81OywH.roBdJn1Ms7jiqua2yx38aI2zNnO",
 		}, errors.New("not found"))
 
-		userService := NewUserService(repoMock, nil)
+		userService := NewUserService(repoMock, service.Service{Utils: nil})
 
 		_, err := userService.Login(ctx, userLoginRequest)
 		assert.NotEqual(t, err, nil)
@@ -71,7 +70,7 @@ func TestLogin(t *testing.T) {
 			Password:   "$2a$04$HnXu0HWPzJlFR6R5g2Nn",
 		}, nil)
 
-		userService := NewUserService(repoMock, nil)
+		userService := NewUserService(repoMock, service.Service{Utils: nil})
 
 		_, err := userService.Login(ctx, userLoginRequest)
 		assert.NotEqual(t, err, nil)
@@ -100,7 +99,8 @@ func TestResetPassword(t *testing.T) {
 		repoMock := mocks.NewIUserRepository(t)
 		repoMock.On("UpdatePassword", mock.Anything, user.ID, "$04$1kp13XtORrd5gI0Buf.3ceUN/Ee94Ok0L.1AMwJBEAHoBZFRNPo7S").Return(nil)
 
-		userService := NewUserService(repoMock, utilsMock)
+
+		userService := NewUserService(repoMock, service.Service{Utils: utilsMock})
 		err := userService.ResetPassword(ctx, user, request)
 		assert.Equal(t, err, nil)
 	})
@@ -123,7 +123,8 @@ func TestResetPassword(t *testing.T) {
 		ctx := context.Background()
 		repoMock := mocks.NewIUserRepository(t)
 
-		userService := NewUserService(repoMock, utilsMock)
+
+		userService := NewUserService(repoMock, service.Service{Utils: utilsMock})
 		err := userService.ResetPassword(ctx, user, request)
 		assert.Equal(t, err, errors.New("Eski şifre doğrulanamadı."))
 	})
@@ -147,7 +148,7 @@ func TestResetPassword(t *testing.T) {
 		ctx := context.Background()
 		repoMock := mocks.NewIUserRepository(t)
 
-		userService := NewUserService(repoMock, utilsMock)
+		userService := NewUserService(repoMock, service.Service{Utils: utilsMock})
 		err := userService.ResetPassword(ctx, user, request)
 		assert.Equal(t, err, errors.New("Eski şifre ile yeni şifre aynı olamaz."))
 	})
@@ -173,7 +174,8 @@ func TestResetPassword(t *testing.T) {
 		repoMock := mocks.NewIUserRepository(t)
 		repoMock.On("UpdatePassword", mock.Anything, user.ID, "$04$1kp13XtORrd5gI0Buf.3ceUN/Ee94Ok0L.1AMwJBEAHoBZFRNPo7S").Return(errors.New("şifre güncellemede sorun oluştu."))
 
-		userService := NewUserService(repoMock, utilsMock)
+
+		userService := NewUserService(repoMock, service.Service{Utils: utilsMock})
 		err := userService.ResetPassword(ctx, user, request)
 		assert.Equal(t, err, errors.New("şifre güncellemede sorun oluştu."))
 	})
@@ -218,7 +220,7 @@ func TestRegister(t *testing.T) {
 		repoMock.On("IsDuplicatePhone", userRegisterRequest.Phone).Return(false)
 		repoMock.On("Register", &user).Return(nil)
 
-		userService := NewUserService(repoMock, utilsMock)
+		userService := NewUserService(repoMock, nil)
 		ctx := context.Background()
 		userRegisterResponse, err := userService.Register(ctx,userRegisterRequest)
 		assert.Equal(t, err, nil)
@@ -261,7 +263,7 @@ func TestRegister(t *testing.T) {
 		repoMock.On("IsDuplicateEmail", userRegisterRequest.Email).Return(false)
 		repoMock.On("IsDuplicatePhone", userRegisterRequest.Phone).Return(false)
 
-		userService := NewUserService(repoMock, utilsMock)
+		userService := NewUserService(repoMock, service.Service{Utils: utilsMock})
 		ctx := context.Background()
 		userRegisterResponse, err := userService.Register(ctx,userRegisterRequest)
 		assert.Equal(t, err, errors.New("Şifre oluşturulamadı."))
@@ -278,7 +280,7 @@ func TestRegister(t *testing.T) {
 		repoMock.On("IsDuplicateEmail", userRegisterRequest.Email).Return(false)
 		repoMock.On("IsDuplicatePhone", userRegisterRequest.Phone).Return(false)
 
-		userService := NewUserService(repoMock, utilsMock)
+		userService := NewUserService(repoMock, service.Service{Utils: utilsMock})
 		ctx := context.Background()
 		userRegisterResponse, err := userService.Register(ctx,userRegisterRequest)
 		assert.Equal(t, err, errors.New("Şifre doğru bir şekilde oluşturulamadı."))
@@ -311,7 +313,7 @@ func TestRegister(t *testing.T) {
 		repoMock.On("IsDuplicatePhone", userRegisterRequest.Phone).Return(false)
 		repoMock.On("Register", &user).Return(errors.New("Kayıt işlemi başarısız oldu. Lütfen bilgilerinizi kontrol ediniz."))
 
-		userService := NewUserService(repoMock, utilsMock)
+		userService := NewUserService(repoMock, service.Service{Utils: utilsMock})
 		ctx := context.Background()
 		_, err := userService.Register(ctx,userRegisterRequest)
 		assert.Equal(t, err, errors.New("Kayıt işlemi başarısız oldu. Lütfen bilgilerinizi kontrol ediniz."))

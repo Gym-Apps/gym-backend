@@ -12,7 +12,7 @@ type IUserRepository interface {
 	Login(ctx context.Context, phone string) (models.User, error)
 	Register(user *models.User) error
 	IsDuplicatePhone(phone string) bool
-    IsDuplicateEmail(email string) bool 
+  IsDuplicateEmail(email string) bool 
 	UpdatePassword(ctx context.Context, userID uint, password string) error
 	//WithContext(ctx context.Context) IUserRepository
 }

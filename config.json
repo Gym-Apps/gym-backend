@@ -1,0 +1,16 @@
+{
+     "debug": true,
+     "server": {
+       "address": ":8080"
+     },
+     "context":{
+       "timeout":2
+     },
+     "database": {
+         "host": "@/",
+         "port": "3306",
+         "user": "root",
+         "pass": "mysql123",
+         "name": "gymapp"
+     }
+}

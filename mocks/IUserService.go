@@ -53,6 +53,7 @@ func (_m *IUserService) Register(ctx context.Context, userRegisterRequest reques
 	var r1 error
 	if rf, ok := ret.Get(1).(func(context.Context, request.UserRegisterDTO) error); ok {
 		r1 = rf(ctx, userRegisterRequest)
+
 	} else {
 		r1 = ret.Error(1)
 	}

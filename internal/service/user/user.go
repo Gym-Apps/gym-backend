@@ -7,9 +7,10 @@ import (
 
 	"github.com/Gym-Apps/gym-backend/dto/request"
 	"github.com/Gym-Apps/gym-backend/dto/response"
+	"github.com/Gym-Apps/gym-backend/internal/config/db"
 	jwtConfig "github.com/Gym-Apps/gym-backend/internal/config/jwt"
 	userRepo "github.com/Gym-Apps/gym-backend/internal/repository/user"
-	"github.com/Gym-Apps/gym-backend/internal/utils"
+	"github.com/Gym-Apps/gym-backend/internal/service"
 	jwtPackage "github.com/Gym-Apps/gym-backend/internal/utils/jwt"
 	"github.com/Gym-Apps/gym-backend/models"
 	"github.com/dgrijalva/jwt-go"
@@ -24,15 +25,15 @@ type IUserService interface {
 
 type UserService struct {
 	repository userRepo.IUserRepository
-	utils      utils.IUtils
+	service.Service
 }
 
-func NewUserService(repository userRepo.IUserRepository, utils utils.IUtils) IUserService {
-	return &UserService{repository: repository, utils: utils}
+func NewUserService(repository userRepo.IUserRepository, service service.Service) IUserService {
+	return &UserService{repository: repository, Service: service}
 }
 
 func (s *UserService) Login(ctx context.Context, userLoginRequest request.UserLoginDTO) (response.UserLoginDTO, error) {
-	ctx, cancel := context.WithTimeout(ctx, 2*time.Second)
+	ctx, cancel := context.WithTimeout(ctx, db.Time)
 	defer cancel()
 
 	user, err := s.repository.Login(ctx, userLoginRequest.Phone)
@@ -65,19 +66,20 @@ func (s *UserService) Login(ctx context.Context, userLoginRequest request.UserLo
 }
 
 func (s *UserService) ResetPassword(ctx context.Context, user models.User, request request.UserResetPasswordDTO) error {
-	ctx, cancel := context.WithTimeout(ctx, 2*time.Second)
+
+	ctx, cancel := context.WithTimeout(ctx, db.Time)
 	defer cancel()
-	passwordControl := s.utils.EqualPassword(user.Password, request.OldPassword)
+	passwordControl := s.Service.Utils.EqualPassword(user.Password, request.OldPassword)
 	if !passwordControl {
 		return errors.New("Eski şifre doğrulanamadı.")
 	}
 
-	equalPassword := s.utils.EqualPassword(user.Password, request.NewPassword)
+	equalPassword := s.Service.Utils.EqualPassword(user.Password, request.NewPassword)
 	if equalPassword {
 		return errors.New("Eski şifre ile yeni şifre aynı olamaz.")
 	}
 
-	password, _ := s.utils.GeneratePassword(request.NewPassword)
+	password, _ := s.Service.Utils.GeneratePassword(request.NewPassword)
 
 	err := s.repository.UpdatePassword(ctx, user.ID, string(password))
 	if err != nil {
@@ -88,7 +90,7 @@ func (s *UserService) ResetPassword(ctx context.Context, user models.User, reque
 }
 func (s *UserService) Register(ctx context.Context,userRegisterRequest request.UserRegisterDTO) (response.UserRegisterDTO, error) {
 
-	ctx, cancel := context.WithTimeout(ctx, 2*time.Second)
+	ctx, cancel := context.WithTimeout(ctx, db.Time)
 	defer cancel()
 
 	isDuplicateEmail := s.repository.IsDuplicateEmail(userRegisterRequest.Email)
