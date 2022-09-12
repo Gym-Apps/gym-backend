@@ -24,7 +24,7 @@ func VerifyToken(next echo.HandlerFunc) echo.HandlerFunc {
 		}
 		verifiedUser := &models.User{}
 
-		db.DB.Debug().
+		db.DB.
 			Where("id=?", claims.ID).
 			First(&verifiedUser)
 		if verifiedUser.ID == 0 {
